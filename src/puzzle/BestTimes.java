@@ -25,9 +25,6 @@ public class BestTimes implements Iterable<BestTimes.PlayerTime>, Serializable {
 
 	private Iterator<PlayerTime> iterator;
 
-	private static final String BEST_TIMES_FILE = System.getProperty("user.home") + System.getProperty("file.separator")
-			+ "puzzle.bestTimes";
-
 	public Iterator<PlayerTime> iterator() {
 		return iterator = playerTimes.iterator();
 	}
@@ -58,27 +55,7 @@ public class BestTimes implements Iterable<BestTimes.PlayerTime>, Serializable {
 		}
 	}
 	
-	public void save() {
-		try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(BEST_TIMES_FILE));) {
-			outputStream.writeObject(this);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
-	public static BestTimes load() {
-		try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(BEST_TIMES_FILE));) {
-			BestTimes bestTimes = (BestTimes) inputStream.readObject();
-			return bestTimes;
-		} catch (FileNotFoundException e) {
-			System.out.println("Cannot load from file (" + e.getMessage() + ")");
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 
 	public static class PlayerTime implements Comparable<PlayerTime> {
 

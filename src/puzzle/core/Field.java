@@ -8,7 +8,7 @@ import java.util.Random;
 public class Field {
 
 	private final List<Rock> rocks;
-	
+
 	private final List<Rock> test = new ArrayList<>();
 
 	private final int rowCount;
@@ -16,9 +16,9 @@ public class Field {
 	private final int columnCount;
 
 	private final int[] arrayOfInts;
-	
+
 	private static Banner banner;
-	
+
 	private GameState state = GameState.PLAYING;
 
 	public Field(int rowCount, int columnCount) {
@@ -26,20 +26,29 @@ public class Field {
 		this.columnCount = columnCount;
 		rocks = new ArrayList<>();
 		arrayOfInts = new int[(rowCount * columnCount) - 1];
-		fillWithRocks();
+//		fillWithRocks();
 		banner = new Banner();
-//		test.add(new Rock(1));
-//		test.add(new Rock(3));
-//		test.add(new Rock(6));
-//		test.add(new Rock(5));
-//		test.add(new Rock(4));
-//		test.add(new Rock(2));
-//		test.add(new Rock(0));
-		
+		 test.add(new Rock(1));
+		 test.add(new Rock(2));
+		 test.add(new Rock(3));
+		 test.add(new Rock(4));
+		 test.add(new Rock(5));
+		 test.add(new Rock(6));
+		 test.add(new Rock(7));
+		 test.add(new Rock(8));
+		 test.add(new Rock(9));
+		 test.add(new Rock(10));
+		 test.add(new Rock(11));
+		 test.add(new Rock(12));
+		 test.add(new Rock(13));
+		 test.add(new Rock(14));
+		 test.add(new Rock(15));
+		 test.add(new Rock(0));
+
 	}
 
 	public List<Rock> getRocks() {
-		return rocks;
+		return test;
 	}
 
 	public int getRowCount() {
@@ -75,19 +84,11 @@ public class Field {
 				adding = true;
 				i--;
 			}
-
 		}
-
 		for (int l = 0; l < arrayOfInts.length; l++) {
 			rocks.add(new Rock(arrayOfInts[l]));
 		}
 		rocks.add(new Rock(0));
-
-		// for (int k = 0; k < arrayOfInts.length; k++) {
-		// System.out.print(" " + arrayOfInts[k]);
-		//
-		// }
-
 		return rocks;
 	}
 
@@ -99,7 +100,6 @@ public class Field {
 				System.out.print("	" + rock.getRockNumber());
 				numberOfRows--;
 			} else {
-				
 				System.out.print("	" + rock.getRockNumber());
 				numberOfRows--;
 			}
@@ -107,7 +107,7 @@ public class Field {
 		System.out.println();
 		System.out.println();
 	}
-	
+
 	public static Banner getBanner() {
 		return banner;
 	}
@@ -115,6 +115,5 @@ public class Field {
 	public GameState getState() {
 		return state;
 	}
-
 
 }

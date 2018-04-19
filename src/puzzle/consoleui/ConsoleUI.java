@@ -1,13 +1,21 @@
 package puzzle.consoleui;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.sql.Savepoint;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import puzzle.BestTimes;
+import puzzle.BestTimes.PlayerTime;
 import puzzle.UserInterface;
 import puzzle.core.Banner;
 import puzzle.core.Field;
@@ -19,10 +27,15 @@ public class ConsoleUI implements UserInterface {
 	private Banner banner;
 
 	private Field field;
+	
+	private BestTimes bestTimes;
 
 	private BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
 	private GameState actualGameState;
+	
+	private static final String BEST_TIMES_FILE = System.getProperty("user.home") + System.getProperty("file.separator")
+	+ "puzzle.bestTimes";
 
 	public static int stepsCounter = 0;
 
@@ -56,7 +69,7 @@ public class ConsoleUI implements UserInterface {
 		Matcher matcher = pattern.matcher(toLowerCase);
 		if (matcher.matches()) {
 			if (toLowerCase.equals("exit")) {
-				System.out.println("Ukončujem hru!");
+				System.out.println("Ukoncujem hru!");
 				System.exit(0);
 			} else if (toLowerCase.equals("new")) {
 				System.out.println("Spustam novu hru!");
@@ -68,7 +81,6 @@ public class ConsoleUI implements UserInterface {
 				switchElements(Direction.LEFT);
 			} else if (toLowerCase.equals("s")) {
 				switchElements(Direction.DOWN);
-				System.out.println("Idem dole");
 			} else if (toLowerCase.equals("d")) {
 				switchElements(Direction.RIGHT);
 			}
@@ -80,17 +92,19 @@ public class ConsoleUI implements UserInterface {
 
 	@Override
 	public void newGameStarted(Field field) {
+//		bestTimes = load();
 		System.out.println("Welcome, " + System.getProperty("user.name") + "!");
 		this.field = field;
 		banner = field.getBanner();
 		update();
 		do {
 			processInput();
-			update();
-			if (actualGameState == GameState.SOLVED) {
+			if (isSolved()) {
 				System.out.println("Vyhral si! GRATULUJEM!");
+//				save();
 				System.exit(0);
 			}
+			update();
 		} while (true);
 
 	}
@@ -100,49 +114,68 @@ public class ConsoleUI implements UserInterface {
 		banner.printBanner();
 		field.printField();
 		isSolved();
-
 	}
 
-	private void isSolved() {
-		for (Iterator iterator = field.getRocks().iterator(); iterator.hasNext();) {
-			Rock type = (Rock) iterator.next();
-			Rock type2 = (Rock) iterator.next();
-			// if (type.getRockNumber() > type2.getRockNumber()) {
-			// actualGameState = GameState.SOLVED;
-			// }
+	private boolean isSolved() {
+		for (int i = 0; i < field.getRocks().size() - 1; i++) {
+			if (field.getRocks().get(i).getRockNumber() == i + 1) {
+			} else {
+				return false;
+			}
 		}
+		return true;
+	}
+	
+	public void save() {
+		try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(BEST_TIMES_FILE));) {
+			outputStream.writeObject(bestTimes.getBestTimes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static BestTimes load() {
+		try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(BEST_TIMES_FILE));) {
+			BestTimes bestTimes = (BestTimes) inputStream.readObject();
+			return bestTimes;
+		} catch (FileNotFoundException e) {
+			System.out.println("Cannot load from file (" + e.getMessage() + ")");
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public void switchElements(Direction direction) {
 		Iterator<Rock> iterator = field.getRocks().iterator();
-		Rock aktualnyKamen;
-		Rock predchadzajuciKamen;
-		Rock nasledujuciKamen;
+		Rock currentRock;
+		Rock lastRock;
+		Rock nextRock;
 		for (int h = 0; h < field.getRocks().size(); h++) {
 			if (iterator.hasNext()) {
-				aktualnyKamen = iterator.next();
-				if (aktualnyKamen.getRockNumber() == 0) {
+				currentRock = iterator.next();
+				if (currentRock.getRockNumber() == 0) {
 					switch (direction) {
-					case UP: 
+					case UP:
 						field.getRocks().set(h, field.getRocks().get(h + 4));
-						field.getRocks().set(h + 4, aktualnyKamen);
+						field.getRocks().set(h + 4, currentRock);
 						break;
 					case DOWN:
-						nasledujuciKamen = field.getRocks().get(h - 4);
-						field.getRocks().set(h - 4, aktualnyKamen);
-						field.getRocks().set(h, nasledujuciKamen);
+						nextRock = field.getRocks().get(h - 4);
+						field.getRocks().set(h - 4, currentRock);
+						field.getRocks().set(h, nextRock);
 						break;
 					case LEFT:
 						field.getRocks().set(h, iterator.next());
-						field.getRocks().set(h + 1, aktualnyKamen);
+						field.getRocks().set(h + 1, currentRock);
 						break;
 					case RIGHT:
-						predchadzajuciKamen = field.getRocks().get(h - 1);
-						field.getRocks().set(h, predchadzajuciKamen);
-						field.getRocks().set(h - 1, aktualnyKamen);
-						
+						lastRock = field.getRocks().get(h - 1);
+						field.getRocks().set(h, lastRock);
+						field.getRocks().set(h - 1, currentRock);
 						break;
-
 					}
 					stepsCounter++;
 				}
