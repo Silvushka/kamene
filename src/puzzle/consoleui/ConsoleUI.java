@@ -9,7 +9,9 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Savepoint;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,15 +29,15 @@ public class ConsoleUI implements UserInterface {
 	private Banner banner;
 
 	private Field field;
-	
-	private BestTimes bestTimes;
+
+	List<BestTimes> bestTimes = new ArrayList<>();
 
 	private BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
 	private GameState actualGameState;
-	
+
 	private static final String BEST_TIMES_FILE = System.getProperty("user.home") + System.getProperty("file.separator")
-	+ "puzzle.bestTimes";
+			+ "puzzle.bestTimes";
 
 	public static int stepsCounter = 0;
 
@@ -92,16 +94,16 @@ public class ConsoleUI implements UserInterface {
 
 	@Override
 	public void newGameStarted(Field field) {
-//		bestTimes = load();
 		System.out.println("Welcome, " + System.getProperty("user.name") + "!");
 		this.field = field;
 		banner = field.getBanner();
 		update();
 		do {
 			processInput();
+			save();
 			if (isSolved()) {
 				System.out.println("Vyhral si! GRATULUJEM!");
-//				save();
+				save();
 				System.exit(0);
 			}
 			update();
@@ -125,10 +127,10 @@ public class ConsoleUI implements UserInterface {
 		}
 		return true;
 	}
-	
+
 	public void save() {
 		try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(BEST_TIMES_FILE));) {
-			outputStream.writeObject(bestTimes.getBestTimes());
+			outputStream.writeObject(bestTimes);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -159,22 +161,30 @@ public class ConsoleUI implements UserInterface {
 				if (currentRock.getRockNumber() == 0) {
 					switch (direction) {
 					case UP:
-						field.getRocks().set(h, field.getRocks().get(h + 4));
-						field.getRocks().set(h + 4, currentRock);
+						if (h >= 0 && h <= 11) {
+							field.getRocks().set(h, field.getRocks().get(h + 4));
+							field.getRocks().set(h + 4, currentRock);
+						}
 						break;
 					case DOWN:
-						nextRock = field.getRocks().get(h - 4);
-						field.getRocks().set(h - 4, currentRock);
-						field.getRocks().set(h, nextRock);
+						if (h >= 4) {
+							nextRock = field.getRocks().get(h - 4);
+							field.getRocks().set(h - 4, currentRock);
+							field.getRocks().set(h, nextRock);
+						}
 						break;
 					case LEFT:
-						field.getRocks().set(h, iterator.next());
-						field.getRocks().set(h + 1, currentRock);
+						if (h >= 0 && h < 16 && h + 1 % 4 != 0) {
+							field.getRocks().set(h, iterator.next());
+							field.getRocks().set(h + 1, currentRock);
+						}
 						break;
 					case RIGHT:
-						lastRock = field.getRocks().get(h - 1);
-						field.getRocks().set(h, lastRock);
-						field.getRocks().set(h - 1, currentRock);
+						if (h > 0 && h < 16 && h + 1 % 4 != 0) {
+							lastRock = field.getRocks().get(h - 1);
+							field.getRocks().set(h, lastRock);
+							field.getRocks().set(h - 1, currentRock);
+						}
 						break;
 					}
 					stepsCounter++;

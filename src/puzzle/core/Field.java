@@ -26,29 +26,13 @@ public class Field {
 		this.columnCount = columnCount;
 		rocks = new ArrayList<>();
 		arrayOfInts = new int[(rowCount * columnCount) - 1];
-//		fillWithRocks();
+		fillWithRocks();
 		banner = new Banner();
-		 test.add(new Rock(1));
-		 test.add(new Rock(2));
-		 test.add(new Rock(3));
-		 test.add(new Rock(4));
-		 test.add(new Rock(5));
-		 test.add(new Rock(6));
-		 test.add(new Rock(7));
-		 test.add(new Rock(8));
-		 test.add(new Rock(9));
-		 test.add(new Rock(10));
-		 test.add(new Rock(11));
-		 test.add(new Rock(12));
-		 test.add(new Rock(13));
-		 test.add(new Rock(14));
-		 test.add(new Rock(15));
-		 test.add(new Rock(0));
 
 	}
 
 	public List<Rock> getRocks() {
-		return test;
+		return rocks;
 	}
 
 	public int getRowCount() {

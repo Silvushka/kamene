@@ -21,11 +21,13 @@ public class Banner {
 	}
 
 	public void printBanner() {
-		System.out.print("Aktualny cas: ");
+		System.out.println(" _____________________________________________________");
+		System.out.print("|	Aktualny cas: ");
 		Date date = new Date();
-		System.out.println(dateFormat.format(date));
-		System.out.print("Dlzka hry: " + getPlayingSeconds() + "	");
-		System.out.println("Pocet spravenych tahov: " + ConsoleUI.stepsCounter);
+		System.out.println(dateFormat.format(date) + "	    	");
+		System.out.println("|	Dlzka hry: " + getPlayingSeconds() + "  		");
+		System.out.println("|	Pocet spravenych tahov: " + ConsoleUI.stepsCounter + "     ");
+		System.out.println("|_____________________________________________________");
 	}
 
 }
